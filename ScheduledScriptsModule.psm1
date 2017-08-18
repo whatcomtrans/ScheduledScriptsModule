@@ -374,9 +374,9 @@ function Disable-ScheduledScriptJob {
         if (!$Id) {
             $Every = (Get-Culture).TextInfo.ToTitleCase($Every)
             $filterStr = "every$($Every)-$($ScriptName)*"
-            Invoke-Command -Session $session -ScriptBlock {param($filter); Get-ScheduledScriptJob | Where-Object Name -like $filter | Disable-ScheduledScriptJob} -Args $filterStr
+            Invoke-Command -Session $session -ScriptBlock {param($filter); Get-ScheduledJob | Where-Object Name -like $filter | Disable-ScheduledJob} -Args $filterStr
         } else {
-            Invoke-Command -Session $session -ScriptBlock {param($intId); Disable-ScheduledScriptJob -Id $intId} -Args $Id
+            Invoke-Command -Session $session -ScriptBlock {param($intId); Disable-ScheduledJob -Id $intId} -Args $Id
         }
 	}
 	End {
