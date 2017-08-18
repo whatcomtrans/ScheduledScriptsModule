@@ -201,7 +201,7 @@ function Get-ScheduledScriptJob {
 	}
 	End {
         #Put end here
-        Disconnect-PSSession -Session $session
+        Disconnect-PSSession -Session $session | Out-Null
 	}
 }
 
@@ -261,7 +261,7 @@ function Get-ScheduledScriptJobInstance {
 	}
 	End {
         #Put end here
-        Disconnect-PSSession -Session $session
+        Disconnect-PSSession -Session $session | Out-Null
 	}
 }
 
@@ -321,7 +321,7 @@ function Receive-ScheduledScriptJobInstance {
 	}
 	End {
         #Put end here
-        Disconnect-PSSession -Session $session
+        Disconnect-PSSession -Session $session | Out-Null
 	}
 }
 
@@ -381,7 +381,7 @@ function Disable-ScheduledScriptJob {
 	}
 	End {
         #Put end here
-        Disconnect-PSSession -Session $session
+        Disconnect-PSSession -Session $session | Out-Null
 	}
 }
 
@@ -441,7 +441,7 @@ function Enable-ScheduledScriptJob {
 	}
 	End {
         #Put end here
-        Disconnect-PSSession -Session $session
+        Disconnect-PSSession -Session $session | Out-Null
 	}
 }
 
