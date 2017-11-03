@@ -10,15 +10,6 @@ function Update-ScheduledJobToRunCASScriptEvery {
 	[CmdletBinding(SupportsShouldProcess=$false,DefaultParameterSetName="all")]
 	Param(
         [Parameter(Mandatory=$false,Position=0,ValueFromPipeline=$false,ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript({
-                if(-Not ($_ | Test-Path) ){
-                    throw "File or folder does not exist"
-                }
-                if(-Not ($_ | Test-Path -PathType Container) ){
-                    throw "The Path argument must be a folder. File paths are not allowed."
-                }
-                return $true 
-        })]
         [System.IO.FileInfo] $ScriptsRootPath,
         [Parameter(Mandatory=$false,Position=1,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [String] $Every,
@@ -27,18 +18,6 @@ function Update-ScheduledJobToRunCASScriptEvery {
         [Parameter(Mandatory=$false,ValueFromPipeline=$false,ValueFromPipelineByPropertyName=$true)]
         [PSCredential] $Credentials,
         [Parameter(Mandatory=$false,ValueFromPipeline=$false,ValueFromPipelineByPropertyName=$true)]
-        [ValidateScript({
-                if(-Not ($_ | Test-Path) ){
-                    throw "File or folder does not exist"
-                }
-                if(-Not ($_ | Test-Path -PathType Leaf) ){
-                    throw "The Path argument must be a file. Folder paths are not allowed."
-                }
-                if($_ -notmatch "(\.xml)"){
-                    throw "The file specified in the path argument must be of type xml"
-                }
-                return $true 
-        })]
         [System.IO.FileInfo] $CredentialsPath
 	)
 	Begin {
@@ -139,7 +118,7 @@ function Update-ScheduledJobToRunCASScriptEvery {
             $folders = Get-ChildItem -Path "$ScriptsRootPath" -Filter "every*" -Directory
             forEach($folder in $folders) {
                 $folderName = $folder.Name.Replace("every", "")
-                Update-ScheduledJobToRunCASScriptEvery -Every $folderName -Credentials $cred
+                Update-ScheduledJobToRunCASScriptEvery -Every $folderName -Credentials $cred -ScriptsRootPath $ScriptsRootPath
             }
         }
 	}
