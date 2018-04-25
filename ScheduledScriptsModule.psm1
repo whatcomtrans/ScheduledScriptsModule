@@ -293,9 +293,9 @@ function Receive-ScheduledScriptJobInstance {
         if (!$Id) {
             $Every = (Get-Culture).TextInfo.ToTitleCase($Every)
             $filterStr = "every$($Every)-$($ScriptName)*"
-            Invoke-Command -Session $session -ScriptBlock {param($filter); Receive-Job | Where-Object Name -like $filter} -Args $filterStr
+            Invoke-Command -Session $session -ScriptBlock {param($filter); Receive-Job -Keep | Where-Object Name -like $filter} -Args $filterStr
         } else {
-            Invoke-Command -Session $session -ScriptBlock {param($intId); Receive-Job -Id $intId} -Args $Id
+            Invoke-Command -Session $session -ScriptBlock {param($intId); Receive-Job -Id $intId -Keep} -Args $Id
         }
 	}
 	End {
