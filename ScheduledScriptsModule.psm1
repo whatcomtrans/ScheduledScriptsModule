@@ -36,6 +36,11 @@ function Update-ScheduledJobToRunCASScriptEvery {
         If ($cred -eq $null) {
             throw "Must supply credentials either by providing a PSCredentials object to parameter Credentials or by providing parameter CredentialsPath with a path to an encoded XML file that can be imported using Import-PSCredential"
         }
+
+        $initScript = '$CommonAdministrativeShellPath = "' + $CommonAdministrativeShellPath + '"; '  + 'Import-Module "$($CommonAdministrativeShellPath)\Modules\Modulets" -Verbose;'
+        # . (Load-CAS -local -CASPath '$($CommonAdministrativeShellPath)' -NoCredentials);"
+        $initScriptBlock = [Scriptblock]::Create($initScript)
+        
 	}
 	Process {
         #ScriptsRootPath default
@@ -99,11 +104,6 @@ function Update-ScheduledJobToRunCASScriptEvery {
 
             #Process ToRegister and ToUnregister
             forEach ($file in $ToRegister) {
-                $initScript = '$CommonAdministrativeShellPath = "' + $CommonAdministrativeShellPath + '"; '  + 'Import-Module "$($CommonAdministrativeShellPath)\Modules\Modulets" -Verbose;'
-                # . (Load-CAS -local -CASPath '$($CommonAdministrativeShellPath)' -NoCredentials);"
-                $initScriptBlock = [Scriptblock]::Create($initScript)
-                #Write-Output "FilePath $($file.FullName)"
-                #Write-Output "every$($Every)-$($file.Name.Replace('.ps1', ''))"
                 Register-ScheduledJob -FilePath $file.FullName -Name "every$($Every)-$($file.Name.Replace('.ps1', ''))" -Trigger $trigger -ScheduledJobOption $options -InitializationScript $initScriptBlock -Credential $cred # -Authentication Credssp
             }
 
