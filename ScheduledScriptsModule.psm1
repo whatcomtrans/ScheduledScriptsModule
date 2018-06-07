@@ -243,7 +243,59 @@ function Get-ScheduledScriptJobInstance {
         Disconnect-PSSession -Session $session | Out-Null
 	}
 }
+function Start-ScheduledScriptJobInstance {
+	[CmdletBinding(SupportsShouldProcess=$false,DefaultParameterSetName="name")]
+	Param(
+        [Parameter(Mandatory=$true,ValueFromPipeline=$false,ValueFromPipelineByPropertyName=$true,ParameterSetName="name")]    
+        [String] $Every,
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,ParameterSetName="name")]
+        [String] $ScriptName,
+		[Parameter(Mandatory=$true,ValueFromPipeline=$false,ValueFromPipelineByPropertyName=$true)]
+		[String]$ComputerName,
+	    [Parameter(Mandatory=$false,ValueFromPipeline=$false,ValueFromPipelineByPropertyName=$true)]
+        [PSCredential] $Credentials,
+        [Parameter(Mandatory=$false,ValueFromPipeline=$false,ValueFromPipelineByPropertyName=$true)]
+        [ValidateScript({
+                if(-Not ($_ | Test-Path) ){
+                    throw "File or folder does not exist"
+                }
+                if(-Not ($_ | Test-Path -PathType Leaf) ){
+                    throw "The Path argument must be a file. Folder paths are not allowed."
+                }
+                if($_ -notmatch "(\.xml)"){
+                    throw "The file specified in the path argument must be of type xml"
+                }
+                return $true 
+        })]
+        [System.IO.FileInfo] $CredentialsPath
+	)
+	Begin {
+        #Setup credentials for connecting to ComputerName
+        [PSCredential] $cred = $null
+        If ($CredentialsPath) {
+            $cred = Import-PSCredential $CredentialsPath
+        }
 
+        If ($Credentials) {
+            $cred = $Credentials
+        }
+        If ($cred -eq $null) {
+            throw "Must supply credentials either by providing a PSCredentials object to parameter Credentials or by providing parameter CredentialsPath with a path to an encoded XML file that can be imported using Import-PSCredential"
+        }
+
+        #Establish session
+        $session = New-PSSession -ComputerName $ComputerName -Credential $cred
+	}
+	Process {
+        $Every = (Get-Culture).TextInfo.ToTitleCase($Every)
+        $DefinitionNameStr = "every$($Every)-$($ScriptName)*"
+        Invoke-Command -Session $session -ScriptBlock {param($DefinitionName); Start-Job -DefinitionName $DefinitionName} -Args $DefinitionNameStr
+	}
+	End {
+        #Put end here
+        Disconnect-PSSession -Session $session | Out-Null
+	}
+}
 function Receive-ScheduledScriptJobInstance {
 	[CmdletBinding(SupportsShouldProcess=$false,DefaultParameterSetName="name")]
 	Param(
